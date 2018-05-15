@@ -24,6 +24,9 @@ Matrix*       matrix_mulnum(Matrix* matrix, double value);
 Matrix*       matrix_hadamard_mul(Matrix* m1, Matrix* m2);
 unsigned char matrix_is_equal(Matrix* m1, Matrix* m2);
 
+size_t        matrix_data_size(Matrix* m);
+
+
 
 unsigned int  matrix_get_ref_counter();
 

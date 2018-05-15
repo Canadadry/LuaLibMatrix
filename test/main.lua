@@ -60,6 +60,12 @@ print(m2)
 
 print(m:mul(m2))
 
+print(m:encode())
+local r,c,d = m:encode()
+
+m3 = Matrix.copy(Matrix.decode(r,c,d))
+print(m3)
+
 print("Matrix forget : ".. Matrix.count());
 collectgarbage()
 print("Matrix forget : ".. Matrix.count());

@@ -13,7 +13,7 @@ Matrix* matrix_new(unsigned int rows,unsigned int columns, double defaultValue)
 	Matrix* m = malloc(sizeof(Matrix));
 	m->rows = rows;
 	m->columns = columns;
-	m->data = malloc(sizeof(double)*rows*columns);
+	m->data = malloc(matrix_data_size(m));
 
 	const unsigned int size = rows*columns;
 	for (unsigned int i = 0; i < size; i++)
@@ -206,6 +206,12 @@ unsigned char matrix_is_equal(Matrix* m1, Matrix* m2)
 		if( fabs(m1->data[i] - m2->data[i]) > epsilon ) return 0;
 	}
 	return 1;
+}
+
+
+size_t matrix_data_size(Matrix* m)
+{
+	return sizeof(double)*m->rows*m->columns;
 }
 
 unsigned int matrix_get_ref_counter()

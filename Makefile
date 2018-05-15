@@ -7,8 +7,8 @@ all: run_exe run_lib
 dir: 
 	mkdir -p build
 
-lua_matrix.so: build/lua_matrix.o build/matrix.o
-	@$(CC) -o build/lua_matrix.so  $(LIBFLAG) build/matrix.o build/lua_matrix.o $(LDFLAGS)
+lua_matrix.so: build/lua_matrix.o build/matrix.o build/base64.o
+	@$(CC) -o build/lua_matrix.so  $(LIBFLAG) build/base64.o build/matrix.o build/lua_matrix.o $(LDFLAGS)
 
 run_exe: test
 	./build/test
@@ -24,6 +24,9 @@ matrix: build/matrix.o
 
 build/lua_matrix.o: src/lua_matrix.c
 	@$(CC) -o build/lua_matrix.o -c src/lua_matrix.c $(CFLAGS)
+
+build/base64.o: src/base64.c
+	@$(CC) -o build/base64.o -c src/base64.c $(CFLAGS)
 
 build/matrix.o: src/matrix.c
 	@$(CC) -o build/matrix.o -c src/matrix.c $(CFLAGS)
