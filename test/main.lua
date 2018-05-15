@@ -45,13 +45,14 @@ print(m2)
 m = Matrix.new(2,3,1)
 
 count = 0
-function test_set( i,j,v )
+Table = {}
+function Table.test_set( i,j,v )
 	count = count + 1
 	return count
 end
 
 print('test map')
-m:map(test_set)
+m:map(Table.test_set)
 
 m:map(function (i,j,v) return math.sin(v) end)
 
@@ -76,6 +77,7 @@ m = nil
 m2 = nil
 collectgarbage()
 print("Matrix forget : ".. Matrix.count());
+
 
 
 

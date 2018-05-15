@@ -14,7 +14,7 @@ Matrix* check_type(lua_State * l, int n)
 
 int lua_matrix_new(lua_State * l)
 {
-    printf("matrix_constructor\n");
+    //printf("matrix_constructor\n");
 
 	const unsigned int rows    = luaL_checknumber (l, 1);
 	const unsigned int columns = luaL_checknumber (l, 2);
@@ -29,7 +29,7 @@ int lua_matrix_new(lua_State * l)
 
 int lua_matrix_free(lua_State * l)
 {
-    printf("destructor\n");
+    //printf("destructor\n");
     Matrix* matrix = check_type(l, 1);
     matrix_delete(matrix);
     return 0;
@@ -100,6 +100,10 @@ int lua_matrix_add(lua_State * l)
 
     Matrix ** udata = (Matrix **)lua_newuserdata(l, sizeof(Matrix *));
     *udata = matrix_add(m1,m2);
+    if(*udata == 0 )
+    {
+        luaL_error(l,"error while adding matrix : size dont match");
+    }
     luaL_getmetatable(l, "MatrixeMetatableName" );
     lua_setmetatable(l, -2);
     return 1;
@@ -123,7 +127,12 @@ int lua_matrix_sub(lua_State * l)
     Matrix* m2 = check_type(l, 2);
 
     Matrix ** udata = (Matrix **)lua_newuserdata(l, sizeof(Matrix *));
-    *udata = matrix_sub(m1,m2);
+    *udata = matrix_sub(m1,m2);   
+     if(*udata == 0 )
+    {
+        luaL_error(l,"error while substracting matrix : size dont match");
+    }
+
     luaL_getmetatable(l, "MatrixeMetatableName" );
     lua_setmetatable(l, -2);
     return 1;
@@ -135,7 +144,12 @@ int lua_matrix_mul(lua_State * l)
     Matrix* m2 = check_type(l, 2);
 
     Matrix ** udata = (Matrix **)lua_newuserdata(l, sizeof(Matrix *));
-    *udata = matrix_mul(m1,m2);
+    *udata = matrix_mul(m1,m2);    
+    if(*udata == 0 )
+    {
+        luaL_error(l,"error while multiplying matrix : size dont match");
+    }
+
     luaL_getmetatable(l, "MatrixeMetatableName" );
     lua_setmetatable(l, -2);
     return 1;
@@ -159,7 +173,12 @@ int lua_matrix_hadamard_mul(lua_State * l)
     Matrix* m2 = check_type(l, 2);
 
     Matrix ** udata = (Matrix **)lua_newuserdata(l, sizeof(Matrix *));
-    *udata = matrix_hadamard_mul(m1,m2);
+    *udata = matrix_hadamard_mul(m1,m2); 
+    if(*udata == 0 )
+    {
+        luaL_error(l,"error while multiplying matrix : size dont match");
+    }
+
     luaL_getmetatable(l, "MatrixeMetatableName" );
     lua_setmetatable(l, -2);
     return 1;
@@ -212,9 +231,8 @@ int lua_decode(lua_State * l)
 
     if(matrix_data_size(*udata) != converted_data)
     {
-        printf("Error while decoding matrix data : data size not matching (row,col) provided\n");
         matrix_delete(*udata);
-        *udata = matrix_new(rows,columns,0);
+        luaL_error(l,"Error while decoding matrix data : data size not matching (row,col) provided\n");
     }
 
     luaL_getmetatable(l, "MatrixeMetatableName" );
@@ -288,7 +306,7 @@ static const struct luaL_Reg functions [] = {
 
 
 int luaopen_lua_matrix(lua_State *l) {
-	printf("luaopen_lua_matrix\n");
+	//printf("luaopen_lua_matrix\n");
 
     luaL_newmetatable(l, "MatrixeMetatableName" );
     luaL_setfuncs(l, functions,0);           

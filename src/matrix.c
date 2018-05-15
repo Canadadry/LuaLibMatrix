@@ -145,7 +145,7 @@ Matrix* matrix_sub(Matrix* m1, Matrix* m2)
 
 Matrix* matrix_mul(Matrix* m1, Matrix* m2)
 {
-	if(m1->columns != m2->rows || m1->rows != m2->columns) return 0;
+	if(m1->columns != m2->rows ) return 0;
 
 	Matrix* out = matrix_new(m1->rows,m2->columns,0.0);
 
