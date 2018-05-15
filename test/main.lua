@@ -44,15 +44,18 @@ print(m2)
 
 m = Matrix.new(2,3,1)
 
-local count = 1
-for i=0,1 do
-	for j=0,2 do
-		m:set(i,j,count)
-		count= count + 1
-	end
+count = 0
+function test_set( i,j,v )
+	count = count + 1
+	return count
 end
 
-m2 = m:transpose();
+print('test map')
+m:map(test_set)
+
+m:map(function (i,j,v) return math.sin(v) end)
+
+m2 = m:transpose()
 
 
 print(m)
@@ -73,3 +76,6 @@ m = nil
 m2 = nil
 collectgarbage()
 print("Matrix forget : ".. Matrix.count());
+
+
+

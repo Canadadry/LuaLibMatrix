@@ -68,15 +68,18 @@ print(m2)
 
 m = Matrix.new(2,3,1)
 
-local count = 1
-for i=0,1 do
-	for j=0,2 do
-		m:set(i,j,count)
-		count= count + 1
-	end
+count = 0
+function test_set( i,j,v )
+	count = count + 1
+	return count
 end
 
-m2 = m:transpose();
+print('test map')
+m:map(test_set)
+
+m:map(function (i,j,v) return math.sin(v) end)
+
+m2 = m:transpose()
 
 
 print(m)
@@ -119,5 +122,8 @@ print("Matrix forget : ".. Matrix.count());
 * count :  count of many matrix are still in memory
 * encode : return row, col and a base64 string of matrix data
 * decode : provide row, col and a base64 string of matrix data to load matrix
+* map :  map a function to every cell of the matrix
+* rows :  return the number of rows of a matrix
+* columns :  return the number of columns of a matrix
 
 

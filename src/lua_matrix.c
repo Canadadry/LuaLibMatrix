@@ -224,6 +224,43 @@ int lua_decode(lua_State * l)
 }
 
 
+int lua_map(lua_State * l)
+{
+    Matrix* m = check_type(l, 1);
+    if(lua_gettop(l)== 2 && lua_isfunction(l, 2))
+    {        
+        int r = luaL_ref(l, LUA_REGISTRYINDEX);
+        for (unsigned int i = 0; i < m->rows; i++)
+        {   
+            for (unsigned int j = 0; j < m->columns; j++)
+            {
+                lua_rawgeti(l, LUA_REGISTRYINDEX, r); 
+                lua_pushnumber(l,i);
+                lua_pushnumber(l,j);
+                lua_pushnumber(l,m->data[j+i*m->columns]);
+                lua_call(l, 3, 1);
+                m->data[j+i*m->columns] = luaL_checknumber(l, -1);
+                lua_pop(l, 1); 
+            }
+        }
+    }
+    return 0;
+}
+
+int lua_columns(lua_State * l)
+{
+    Matrix* m = check_type(l, 1);
+    lua_pushnumber(l, m->columns);
+    return 1;
+}
+
+int lua_rows(lua_State * l)
+{
+    Matrix* m = check_type(l, 1);
+    lua_pushnumber(l, m->rows);
+    return 1;
+}
+
 static const struct luaL_Reg functions [] = {
     { "new"         , lua_matrix_new },
     { "__gc"        , lua_matrix_free      },
@@ -242,6 +279,10 @@ static const struct luaL_Reg functions [] = {
     { "count", lua_matrix_get_ref_counter},
     { "encode", lua_encode},
     { "decode", lua_decode},
+    { "map", lua_map},
+    { "columns", lua_columns},
+    { "rows", lua_rows},
+
     {NULL, NULL}
 };
 
