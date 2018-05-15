@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
 #include "matrix.h"
 
 unsigned int ref_counting = 0;
@@ -158,7 +159,7 @@ Matrix* matrix_mul(Matrix* m1, Matrix* m2)
 }
 
 
-Matrix*       matrix_mulnum(Matrix* m1, Matrix* m2)
+Matrix*       matrix_mulnum(Matrix* matrix, double value)
 {
 	Matrix* out = matrix_new(matrix->rows,matrix->columns,0.0);
 	const unsigned int size = matrix->rows*matrix->columns;
@@ -169,7 +170,7 @@ Matrix*       matrix_mulnum(Matrix* m1, Matrix* m2)
 	return out;
 }
 
-Matrix*  matrix_hadamard_mul(Matrix* matrix,double value)
+Matrix*  matrix_hadamard_mul(Matrix* m1, Matrix* m2)
 {
 	if(m1->columns != m2->columns || m1->rows != m2->rows) return 0;
 
@@ -186,7 +187,7 @@ unsigned char matrix_is_equal(Matrix* m1, Matrix* m2)
 {
 	if (m1 == m2 ) return 1;
 	if(m1->columns != m2->columns || m1->rows != m2->rows) return 0;
-	if( m1.data = m2.data2) return 1
+	if( m1->data == m2->data ) return 1;
 	const double epsilon = 0.000000000001;
 
 	const unsigned int size = m1->rows*m1->columns;
