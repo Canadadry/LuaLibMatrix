@@ -1,20 +1,29 @@
 CC=gcc
 CFLAGS=-W -Wall -ansi -pedantic -std=c99
-LDFLAGS=
+LIBFLAG= -fpic -dynamiclib -Wl,-undefined,dynamic_lookup
 
-all: dir  run
+all: run_exe run_lib
 
 dir: 
 	mkdir -p build
 
-run: test
+lua_matrix.so: build/lua_matrix.o build/matrix.o
+	@$(CC) -o build/lua_matrix.so  $(LIBFLAG) build/matrix.o build/lua_matrix.o $(LDFLAGS)
+
+run_exe: test
 	./build/test
+
+run_lib: lua_matrix.so
+	lua test/main.lua
 
 test: build/test.o build/matrix.o
 	@$(CC) -o build/test build/matrix.o build/test.o $(LDFLAGS)
 
 matrix: build/matrix.o
 	@$(CC) -o build/matrix.so build/matrix.o $(LDFLAGS)
+
+build/lua_matrix.o: src/lua_matrix.c
+	@$(CC) -o build/lua_matrix.o -c src/lua_matrix.c $(CFLAGS)
 
 build/matrix.o: src/matrix.c
 	@$(CC) -o build/matrix.o -c src/matrix.c $(CFLAGS)

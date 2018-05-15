@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 #include "matrix.h"
 
 unsigned int ref_counting = 0;
@@ -79,20 +80,29 @@ void   matrix_set(Matrix* matrix, unsigned int row, unsigned int column,double v
 	matrix->data[column+row*matrix->columns] = value;
 }
 
-void matrix_print(Matrix* matrix)
-{
+void    matrix_print(Matrix* matrix, char* str, unsigned int strSize)
+{	
 	if (matrix_is_valid(matrix) == 0) return;
 
-	printf("row %u, columns %u \n",matrix->rows,matrix->columns);
+	const unsigned int maxSizeCell = 20;
+	const unsigned int headerSize = 50;
+	const unsigned int sizeRequiredToPrint = matrix->rows*matrix->columns*maxSizeCell+headerSize;
+
+	if (strSize < sizeRequiredToPrint) return;
+
+	char cell[maxSizeCell];
+
+	sprintf(str,"row %u, columns %u \n",matrix->rows,matrix->columns);
 	for (unsigned int i = 0; i < matrix->rows; i++)
 	{	
 		for (unsigned int j = 0; j < matrix->columns; j++)
 		{
-			printf("%2.3lf,",matrix->data[j+i*matrix->columns]);
+			sprintf(cell,"%2.3lf,",matrix->data[j+i*matrix->columns]);
+			strcat(str,cell);
 		}
-		printf("\n");
+		strcat(str,"\n");
 	}
-	printf("\n");
+	strcat(str,"\n");
 
 }
 
@@ -147,11 +157,11 @@ Matrix* matrix_mul(Matrix* m1, Matrix* m2)
 			for (unsigned int k = 0; k < m2->rows; k++)
 			{
 				//num = num + m1.mtx[i][n] * m2.mtx[n][j]
-				printf("i %u, j %u, k %u, m1 %2.3lf, m2 %2.3lf\n",i,j,k, m1->data[k+i*m1->columns] , m2->data[j+k*m2->columns]);
+				//printf("i %u, j %u, k %u, m1 %2.3lf, m2 %2.3lf\n",i,j,k, m1->data[k+i*m1->columns] , m2->data[j+k*m2->columns]);
 				result += m1->data[k+i*m1->columns] * m2->data[j+k*m2->columns];
 			}
 			out->data[i+j*out->columns] = result;	
-			printf("i %u, j %u,  out %2.3lf\n",i,j,result);
+			//printf("i %u, j %u,  out %2.3lf\n",i,j,result);
 
 		}
 	}
@@ -202,3 +212,4 @@ unsigned int matrix_get_ref_counter()
 {
 	return ref_counting;
 }
+
