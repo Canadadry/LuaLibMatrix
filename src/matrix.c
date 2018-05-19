@@ -24,6 +24,23 @@ Matrix* matrix_new(unsigned int rows,unsigned int columns, double defaultValue)
 	return m;
 }
 
+void matrix_init_with_pre_malloc(unsigned int rows,unsigned int columns, double defaultValue, void* dst)
+{
+	if(rows < 1 || columns < 1) return ;
+
+	Matrix* m = (Matrix* ) dst;
+	m->rows = rows;
+	m->columns = columns;
+	m->data = (double*)( dst + sizeof(Matrix));
+
+	const unsigned int size = rows*columns;
+	for (unsigned int i = 0; i < size; i++)
+	{
+		m->data[i] = defaultValue;
+	}
+	return ;
+}
+
 void  matrix_delete(Matrix* matrix)
 {
 	if (matrix == 0) return;
@@ -35,38 +52,37 @@ void  matrix_delete(Matrix* matrix)
 	ref_counting--;
 }
 
-unsigned int  matrix_is_valid(Matrix* matrix)
+unsigned char  matrix_is_valid(Matrix* matrix)
 {
 	if(matrix == 0) return 0;
 	if(matrix->data == 0) return 0;
 	if(matrix->columns < 1) return 0;
-	if(matrix->columns < 1) return 0;
+	if(matrix->rows < 1) return 0;
 
 	return 1;
 }
 
-Matrix* matrix_copy(Matrix* matrix)
+unsigned char matrix_copy(Matrix* in, Matrix* out)
 {
-	Matrix* out = matrix_new(matrix->rows,matrix->columns,0.0);
-	const unsigned int size = matrix->rows*matrix->columns;
-	for (unsigned int i = 0; i < size; i++)
-	{
-		out->data[i] = matrix->data[i];
-	}
-	return out;
+	if(matrix_data_size(out) != matrix_data_size(in)) return 0;
+	out->rows = in->rows;
+	out->columns = in->columns;
+	memcpy(out->data, in->data,matrix_data_size(out));
+	return 1;
 }
 
-Matrix* matrix_transpose(Matrix* matrix)
+unsigned char matrix_transpose(Matrix* in,Matrix* out)
 {
-	Matrix* out = matrix_new(matrix->columns,matrix->rows,0.0);
-	for (unsigned int i = 0; i < matrix->rows; i++)
+
+	if(in->columns != out->rows || in->rows != out->columns) return 0;
+	for (unsigned int i = 0; i < in->rows; i++)
 	{	
-		for (unsigned int j = 0; j < matrix->columns; j++)
+		for (unsigned int j = 0; j < in->columns; j++)
 		{
-			out->data[i+j*matrix->rows] = matrix->data[j+i*matrix->columns];
+			out->data[i+j*in->rows] = in->data[j+i*in->columns];
 		}
 	}
-	return out;
+	return 1;
 }
 
 
@@ -92,7 +108,7 @@ void    matrix_print(Matrix* matrix, char* str, unsigned int strSize)
 
 	char cell[maxSizeCell];
 
-	sprintf(str,"row %u, columns %u \n",matrix->rows,matrix->columns);
+	sprintf(str,"row %u, columns %u \n",1,2);//matrix->rows,matrix->columns);
 	for (unsigned int i = 0; i < matrix->rows; i++)
 	{	
 		for (unsigned int j = 0; j < matrix->columns; j++)
@@ -106,48 +122,45 @@ void    matrix_print(Matrix* matrix, char* str, unsigned int strSize)
 
 }
 
-Matrix* matrix_add(Matrix* m1, Matrix* m2)
+unsigned char matrix_add(Matrix* m1, Matrix* m2)
 {
 	if(m1->columns != m2->columns || m1->rows != m2->rows) return 0;
 
-	Matrix* out = matrix_new(m1->rows,m1->columns,0.0);
+	Matrix* out = m1;
 	const unsigned int size = m1->rows*m1->columns;
 	for (unsigned int i = 0; i < size; i++)
 	{
 		out->data[i] = m1->data[i] + m2->data[i];
 	}
-	return out;
+	return 1;
 }
 
-Matrix* matrix_addnum(Matrix* matrix,double value)
+void matrix_addnum(Matrix* matrix,double value)
 {
-	Matrix* out = matrix_new(matrix->rows,matrix->columns,0.0);
 	const unsigned int size = matrix->rows*matrix->columns;
 	for (unsigned int i = 0; i < size; i++)
 	{
-		out->data[i] = matrix->data[i] + value;
+		matrix->data[i] = matrix->data[i] + value;
 	}
-	return out;
 }
 
-Matrix* matrix_sub(Matrix* m1, Matrix* m2)
+unsigned char matrix_sub(Matrix* m1, Matrix* m2)
 {
 	if(m1->columns != m2->columns || m1->rows != m2->rows) return 0;
 
-	Matrix* out = matrix_new(m1->rows,m1->columns,0.0);
 	const unsigned int size = m1->rows*m1->columns;
 	for (unsigned int i = 0; i < size; i++)
 	{
-		out->data[i] = m1->data[i] - m2->data[i];
+		m1->data[i] = m1->data[i] - m2->data[i];
 	}
-	return out;
+	return 1;
 }
 
-Matrix* matrix_mul(Matrix* m1, Matrix* m2)
+unsigned char  matrix_mul(Matrix* m1, Matrix* m2,Matrix* out)
 {
-	if(m1->columns != m2->rows ) return 0;
-
-	Matrix* out = matrix_new(m1->rows,m2->columns,0.0);
+	if( m1->columns != m2->rows     ) return 0;
+	if( m1->rows    != out->rows    ) return 0;
+	if( m2->columns != out->columns ) return 0;
 
 	for (unsigned int i = 0; i < m1->rows; i++)
 	{	
@@ -156,41 +169,34 @@ Matrix* matrix_mul(Matrix* m1, Matrix* m2)
 			double result = 0.0;
 			for (unsigned int k = 0; k < m2->rows; k++)
 			{
-				//num = num + m1.mtx[i][n] * m2.mtx[n][j]
-				//printf("i %u, j %u, k %u, m1 %2.3lf, m2 %2.3lf\n",i,j,k, m1->data[k+i*m1->columns] , m2->data[j+k*m2->columns]);
 				result += m1->data[k+i*m1->columns] * m2->data[j+k*m2->columns];
 			}
 			out->data[i+j*out->columns] = result;	
-			//printf("i %u, j %u,  out %2.3lf\n",i,j,result);
-
 		}
 	}
-	return out;
+	return 1;
 }
 
 
-Matrix*       matrix_mulnum(Matrix* matrix, double value)
+void matrix_mulnum(Matrix* matrix, double value)
 {
-	Matrix* out = matrix_new(matrix->rows,matrix->columns,0.0);
 	const unsigned int size = matrix->rows*matrix->columns;
 	for (unsigned int i = 0; i < size; i++)
 	{
-		out->data[i] = matrix->data[i] * value;
+		matrix->data[i] = matrix->data[i] * value;
 	}
-	return out;
 }
 
-Matrix*  matrix_hadamard_mul(Matrix* m1, Matrix* m2)
+unsigned char matrix_hadamard_mul(Matrix* m1, Matrix* m2)
 {
 	if(m1->columns != m2->columns || m1->rows != m2->rows) return 0;
 
-	Matrix* out = matrix_new(m1->rows,m1->columns,0.0);
 	const unsigned int size = m1->rows*m1->columns;
 	for (unsigned int i = 0; i < size; i++)
 	{
-		out->data[i] = m1->data[i] * m2->data[i];
+		m1->data[i] = m1->data[i] * m2->data[i];
 	}
-	return out;
+	return 1;
 }
 
 unsigned char matrix_is_equal(Matrix* m1, Matrix* m2)
